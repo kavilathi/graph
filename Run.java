@@ -110,4 +110,16 @@ public class Run extends Application {
 			 getDescendent(m1);
 		 }
 	 }
+	
+	 public int getLoDepth() {
+	    	int curDepth = (loItems.size()>0)?1:0;
+	    	//System.out.println(label+"-->count c : "+c);
+			int maxChildDepth = 0;
+	    	for (MxDataModel m: loItems) {
+	    		int tempChildDepth = m.getLoDepth();
+	    		if (tempChildDepth>maxChildDepth) maxChildDepth=tempChildDepth;
+			}
+	    	
+			return curDepth+maxChildDepth;
+	 }
 }
