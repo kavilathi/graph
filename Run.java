@@ -3,21 +3,23 @@ package graph;
 import java.util.HashMap;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 
 public class Run extends Application {
 	
-	int[] y = {50};
-	int childYOff = 30;
 	Pane containerPane ;
-	HashMap<String,Murex> allItem = new HashMap<>(); ;
+	HashMap<String,Element> allItem = new HashMap<>(); ;
+    Element m;
+    Element addedChild,lastChild;
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		feedData();
@@ -27,99 +29,109 @@ public class Run extends Application {
 		searchTextArea.setPrefHeight(20);
 		Button searchButton = new Button("Search");
 		searchButton.setOnAction(e->{
-			for(Murex m :allItem.values()) {
-				if(m.name.contains(searchTextArea.getText())) {
+			for(Element m :allItem.values()) {
+				if(m.name.equals(searchTextArea.getText())) {
 					containerPane.getChildren().clear();
-					initXY();
-					m.createView();
-					m.getView().setLayoutX(setX());
-					m.getView().setLayoutY(setY());
-					containerPane.getChildren().add(m.getView());
-					getDescendent(m);
+					this.m=m;
+					rootLabel();
+					getDescendent(this.m);	
 				}
 			}
 		});
 		root.getChildren().addAll(searchTextArea,searchButton,containerPane);
 		Scene scene = new Scene(root,400,400);
 		primaryStage.setScene(scene);
-		primaryStage.show();
-				
-	}
-	public void initXY() {
-		 y[0] = 50;
-	    childYOff = 30;
+		primaryStage.show();			
 	}
 	
-	public int setX() {
-		return 50;
-	}
-	public int setY() {
-		return y[0];
-	}
-	
-	 public static void main(String args[]){           
-	      launch(args);      
-	   } 
 
-	 public Murex getMurex(String label) {
+	 private Element getElement(String label) {
 		 if(label==null) return null;
-		 Murex m = new Murex(label);
+		 Element m = new Element(label); 
 		 if(!allItem.containsKey(label)) {
 			 allItem.put(label, m);
 		 }
 		 return m;
 	 }
 	 
-	 public void feedData() {
-		 String[] A = {"A.FIRST.CHILD","A.SECOND.CHILD","A.THIRD.CHILD"};
-		 Murex mA = getMurex("A.SOURCE");
-		 for(String s:A) {
-            Murex mA1 = getMurex(s);
-            mA.addLowerItem(mA1);
-            mA1.addUpperItem(mA);
-		}
-		 String[] B = {"B.FIRST.CHILD","B.SECOND.CHILD","B.THIRD.CHILD"};
-		 Murex mB = getMurex("B.SOURCE");
-		 for(String s:B) {
-            Murex mB1 = getMurex(s);
-            mB.addLowerItem(mB1);
-            mB1.addUpperItem(mB);
-		}	
-		 
-		 String[] C = {"C.FIRST.CHILD","C.SECOND.CHILD","C.THIRD.CHILD"};
-		 Murex mC = getMurex("C.SOURCE");
-		 for(String s:C) {
-            Murex mC1 = getMurex(s);
-            mC.addLowerItem(mC1);
-            mC1.addUpperItem(mC);
-		}
-				 
+	 private void feedData() {
+		 Element mA = getElement("A.SOURCE");
+		 Element mA1 = getElement("A.CHILD1");
+		 mA.addChild(mA1);
+		 Element mA11 = getElement("A.CHILD11");
+		 mA1.addChild(mA11);
+         Element mA2 = getElement("A.CHILD2");
+         mA.addChild(mA2);
+         Element mA3 = getElement("A.CHILD3");
+         mA.addChild(mA3);	
+         Element mA4 = getElement("A.CHILD4");
+         mA.addChild(mA4);
+         Element mA5 = getElement("A.CHILD5");
+         mA.addChild(mA5);	
+         Element mA51 = getElement("A.CHILD51");
+         mA5.addChild(mA51);
+         Element mA52 = getElement("A.CHILD52");
+         mA5.addChild(mA52);	
+/*         Element mA11 = getElement("A.CHILD1.CHILD1");
+		 mA1.addChild(mA11);
+         mA11.addParent(mA1);*/
+//         Element mA111 = getElement("A.CHILD1.CHILD2");
+//		 mA1.addChild(mA111);
+//         mA111.addParent(mA1);
+
+//        Element mA22 = getElement("A.CHILD2.CHILD1");
+//         mA2.addChild(mA22);
+//         mA22.addParent(mA2);
+//        / Element mA23 = getElement("A.SECOND.SECOND.CHILD");
+//         mA2.addChild(mA23);
+//         mA23.addParent(mA2);
+
 	 }
 	 
-	 public void getDescendent(Murex m) {
-		 for(Murex m1:m.loItem) {
-			 m1.createView();
-			 m1.getView().setLayoutX(setX()+20);
-			 m1.getView().setLayoutY(setY()+childYOff);		 
-			 System.out.println( m1.getView().getLayoutY());
-			 Line l = new Line();
-			 l.startXProperty().bind(m.getView().layoutXProperty());
-			 l.endXProperty().bind(m1.getView().layoutXProperty());
-			 containerPane.getChildren().addAll(m1.getView(),l);
-			 childYOff += 30;
-			 getDescendent(m1);
-		 }
+	 
+	 private void rootLabel() {
+		containerPane.getChildren().clear();
+		this.m.createLabel();
+		this.m.getLabel().relocate(50, 20);
+		containerPane.getChildren().add(this.m.getLabel());
 	 }
-	
-	 public int getLoDepth() {
-	    	int curDepth = (loItems.size()>0)?1:0;
-	    	//System.out.println(label+"-->count c : "+c);
-			int maxChildDepth = 0;
-	    	for (MxDataModel m: loItems) {
-	    		int tempChildDepth = m.getLoDepth();
-	    		if (tempChildDepth>maxChildDepth) maxChildDepth=tempChildDepth;
-			}
-	    	
-			return curDepth+maxChildDepth;
+	 
+
+	 private void getDescendent(Element m) {			 
+          for(Element child:m.childList) {
+        	  child.createLabel();
+        	  getCurrentChildPositionRelativeToParent(child);
+        	  containerPane.getChildren().add(child.getLabel());
+        	  addedChild=child;	  
+        	  getDescendent(child);
+          }
+
 	 }
+
+
+	 private void getCurrentChildPositionRelativeToParent(Element child) {	 
+
+		   if(addedChild == null)
+		   {
+				child.getLabel().layoutXProperty().bind(this.m.getLabel().layoutXProperty().add(50));
+				child.getLabel().layoutYProperty().bind(this.m.getLabel().layoutYProperty().add(30));	
+		   }
+		   else 
+		   {
+			   
+			    if(addedChild.childList.size()>0) {
+			    	child.getLabel().layoutXProperty().bind(addedChild.getLabel().layoutXProperty().add(50));
+			    	child.getLabel().layoutYProperty().bind(addedChild.getLabel().layoutYProperty().add(30));
+			    }else {
+			    	child.getLabel().layoutXProperty().bind(addedChild.getLabel().layoutXProperty().subtract(50));
+					child.getLabel().layoutYProperty().bind(addedChild.getLabel().layoutYProperty().add(30));
+			    }
+		   }	   
+				
+		}
+	  
+	 public static void main(String args[]){           
+	      launch(args);      
+	 } 
+	 
 }
